@@ -23,14 +23,16 @@ public class RankComparator implements Comparator<List<Card>> {
         }
 
         Integer handValue1 = hand1.getHandValue();
+        System.out.println("handValue1:" + hand1 + " " + hand1.getHandName() + " " + handValue1);
         Integer handValue2 = hand2.getHandValue();
+        System.out.println("handValue2:" + hand2 + " " + hand2.getHandName() + " " + handValue2);
 
-        // Situation 1: if rank is the same, call compareSameRank()
+        // Situation 1: if rank is the same, call compareSameRank() method
         if (handValue1.equals(handValue2)) {
             return this.compareSameRank(o1, o2);
         }
 
-        // Situation 2: if rank values are not equal, return reversed order
+        // Situation 2: if rank values are not same, return reversed order
         return handValue2.compareTo(handValue1);
     }
 

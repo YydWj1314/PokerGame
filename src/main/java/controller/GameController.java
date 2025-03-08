@@ -70,7 +70,7 @@ public class GameController {
 
         // Each Player plays cards
         for (Player player : this.players) {
-            System.out.println(player.getUid() + " Input 3 indices, split by space");
+            System.out.println(player.getUid() + " Input 3 indices, split by space:");
             List<Card> selectedCards = player.selectCards(3, scanner);
             if (selectedCards == null || selectedCards.isEmpty()) {
                 throw new InvalidCardsCountException(ExceptionMessage.INVALID_CARDS_COUNT.getMessage());
@@ -90,7 +90,6 @@ public class GameController {
      * @param palyedCardsMap
      */
     public LinkedHashMap<Player, List<Card>> evaluatePlayedCards(Map<Player, List<Card>> palyedCardsMap) {
-        // TODO
         //{uid:player2, hand:[♥3, ♠4], handRank:null} = [♦Q, ♣A, ♠K],
         //{uid:player3, hand:[♦K, ♦2], handRank:null} = [♦3, ♥Q, ♠6],
         //{uid:player1, hand:[♣7, ♠A], handRank:null} = [♣3, ♦5, ♥10]}

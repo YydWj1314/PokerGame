@@ -8,10 +8,12 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
+ * Revered order logic
  * handValue2 > handValue1（o2 比 o1 大）→ compareTo() 返回 正数
  * handValue2 < handValue1（o1 比 o2 大）→ compareTo() 返回 负数
  *
@@ -126,5 +128,6 @@ class RankComparatorTest {
         int result = rankComparator.compare(hand1, hand2);
         assertEquals(0, result, "return 0");
     }
+
 
 }

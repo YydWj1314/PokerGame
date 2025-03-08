@@ -37,18 +37,21 @@ public class PokerGame {
         GameController gameController = new GameController(deck, players, true);
         System.out.println("After initialization:");
         System.out.println(gameController);
+        System.out.println("\n");
 
 
         // 2. Init and shuffle the deck
         gameController.getDeck().shuffle();
         System.out.println("After shuffling:");
         System.out.println(gameController);
+        System.out.println("\n");
 
 
         // 3. Dealing 5 cards to every player
         gameController.dealCards(5);
         System.out.println("After Dealing 5 cards:");
         System.out.println(gameController);
+        System.out.println("\n");
 
 
         // 4. Players selecting and playing cards
@@ -56,6 +59,7 @@ public class PokerGame {
         Map<Player, List<Card>>  cardsMap = gameController.selectAndPlayCards(scanner);
         System.out.println("After playing cards:");
         System.out.println(cardsMap);
+        System.out.println("\n");
 
 
         // 5. Evaluating and sorting player by hand rank

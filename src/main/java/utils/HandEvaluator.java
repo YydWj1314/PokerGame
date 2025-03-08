@@ -44,6 +44,7 @@ public class HandEvaluator {
         if (HandEvaluator.isStraightFlush(handCards)) return new StraightFlush(handCards);
         if (HandEvaluator.isThreeOfOneKind(handCards)) return new ThreeOfOneKind(handCards);
         if (HandEvaluator.isFlush(handCards)) return new Flush(handCards);
+        if (HandEvaluator.isStraight(handCards)) return new Straight(handCards);
         if (HandEvaluator.isPair(handCards)) return new Pair(handCards);
         if (HandEvaluator.isHighCard(handCards)) return new HighCard(handCards);
         return null;
@@ -68,18 +69,19 @@ public class HandEvaluator {
                 .map(card -> card.getRank().getValue())
                 .sorted(Comparator.reverseOrder())
                 .collect(Collectors.toList());
+//        System.out.println("Straight Value:" + cardsValue);
 
         // 3.Checking special straight case: A-3-2
         List<Integer> lowAceStraight = Arrays.asList(14, 3, 2);
         if (new HashSet<>(cardsValue).containsAll(lowAceStraight)) {
             return true;
         }
+
         // 4.Checking normal straight case
         for (int i = 0; i < cardsValue.size() - 1; i++) {
             if (cardsValue.get(i) - cardsValue.get(i + 1) != 1)
                 return false;
         }
-
         return true;
     }
 
@@ -100,6 +102,7 @@ public class HandEvaluator {
         Set<CardSuit> cardSuitSet = cards.stream()
                 .map(card -> card.getSuit())
                 .collect(Collectors.toSet());
+//        System.out.println("Flush Suit:" + cardSuitSet);
 
         // 3.Checking number of elements in the set: =1 -> is flush, >1 ->not flush
         if (cardSuitSet.size() > 1) {

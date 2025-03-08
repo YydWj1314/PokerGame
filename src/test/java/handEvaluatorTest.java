@@ -1,11 +1,15 @@
 import model.Card;
 import model.enumuration.CardRank;
 import model.enumuration.CardSuit;
+import model.enumuration.HandRank;
+import model.hands.StraightFlush;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import utils.HandEvaluator;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 class handEvaluatorTest {
 
@@ -15,6 +19,36 @@ class handEvaluatorTest {
 
     @Test
     void handEvaluator() {
+        List<Card> straightFlush1 = Arrays.asList(
+                new Card(CardSuit.SPADES, CardRank.QUEEN),
+                new Card(CardSuit.SPADES, CardRank.KING),
+                new Card(CardSuit.SPADES, CardRank.ACE)
+        );
+
+        List<Card> straightFlush2 = Arrays.asList(
+                new Card(CardSuit.SPADES, CardRank.QUEEN),
+                new Card(CardSuit.SPADES, CardRank.KING),
+                new Card(CardSuit.SPADES, CardRank.ACE)
+        );
+
+        List<Card> threeOfAKind1 = Arrays.asList(
+                new Card(CardSuit.SPADES, CardRank.JACK),
+                new Card(CardSuit.DIAMONDS, CardRank.JACK),
+                new Card(CardSuit.CLUBS, CardRank.JACK)
+        );
+
+        List<Card> straight1 = Arrays.asList(
+                new Card(CardSuit.SPADES, CardRank.EIGHT),
+                new Card(CardSuit.DIAMONDS, CardRank.NINE),
+                new Card(CardSuit.CLUBS, CardRank.SEVEN)
+        );
+
+        Assertions.assertEquals(HandRank.STRAIGHT_FLUSH,
+                HandEvaluator.getResult(straightFlush1).getHandName());
+        Assertions.assertEquals(HandRank.THREE_OF_A_KIND,
+                HandEvaluator.getResult(threeOfAKind1).getHandName());
+        Assertions.assertEquals(HandRank.STRAIGHT,
+                HandEvaluator.getResult(straight1).getHandName());
     }
 
     @Test
@@ -37,12 +71,21 @@ class handEvaluatorTest {
         System.out.println(testStraight2);
         Assertions.assertTrue(HandEvaluator.isStraight(testStraight2));
 
-        // [A, 2, 3]
-        testStraight3.add(new Card(CardSuit.CLUBS, CardRank.FIVE));
+        // [♣6, ♣5, ♥7]
         testStraight3.add(new Card(CardSuit.CLUBS, CardRank.SIX));
+        testStraight3.add(new Card(CardSuit.CLUBS, CardRank.FIVE));
         testStraight3.add(new Card(CardSuit.HEARTS, CardRank.SEVEN));
         System.out.println(testStraight3);
         Assertions.assertTrue(HandEvaluator.isStraight(testStraight3));
+
+        // [♠8, ♦9, ♣7]
+        List<Card> testStraight4 = Arrays.asList(
+                new Card(CardSuit.SPADES, CardRank.EIGHT),
+                new Card(CardSuit.DIAMONDS, CardRank.NINE),
+                new Card(CardSuit.CLUBS, CardRank.SEVEN)
+        );
+        Assertions.assertTrue(HandEvaluator.isStraight(testStraight4));
+        System.out.println(testStraight4);
     }
 
     @Test
@@ -68,9 +111,11 @@ class handEvaluatorTest {
         // [♣5, ♣6, ♣J]
         ArrayList<Card> testStraightFlush1 = new ArrayList<>();
         testStraightFlush1.add(new Card(CardSuit.CLUBS, CardRank.FIVE));
-        testStraightFlush1.add(new Card(CardSuit.CLUBS, CardRank.SIX));
         testStraightFlush1.add(new Card(CardSuit.CLUBS, CardRank.JACK));
+        testStraightFlush1.add(new Card(CardSuit.CLUBS, CardRank.SIX));
         System.out.println(testStraightFlush1);
+        System.out.println("isStraight: " + HandEvaluator.isStraight(testStraightFlush1));
+        System.out.println("isFlush: " + HandEvaluator.isFlush(testStraightFlush1));
         Assertions.assertFalse(HandEvaluator.isStraightFlush(testStraightFlush1));
 
         // [♣5, ♣6, ♣7]
