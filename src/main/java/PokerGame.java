@@ -18,6 +18,8 @@ public class PokerGame {
         * 选牌
         * 打牌
         * map 收集
+        * 确定牌型
+        * 确定排名
         * */
 
         // 1. Objects Initialization
@@ -50,10 +52,16 @@ public class PokerGame {
 
 
         // 4. Players selecting and playing cards
-        Map<Player, List<Card>> cardsMap = new HashMap<>();
         Scanner scanner = new Scanner(System.in);
-        cardsMap = gameController.selectAndPlayCards(scanner);
+        Map<Player, List<Card>>  cardsMap = gameController.selectAndPlayCards(scanner);
         System.out.println("After playing cards:");
         System.out.println(cardsMap);
+
+
+        // 5. Evaluating and sorting player by hand rank
+        LinkedHashMap<Player, List<Card>> playerRankMap = gameController
+                .evaluatePlayedCards(cardsMap);
+        System.out.println("After ranking played cards:");
+        System.out.println(playerRankMap);
     }
 }

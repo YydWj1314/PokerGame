@@ -22,6 +22,8 @@ public abstract class Hand implements Comparable<Hand> {
      *
      * @return the list of all cards in hand
      */
+
+
     public List<Card> getCards() {
         return cards;
     }

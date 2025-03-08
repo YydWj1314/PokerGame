@@ -6,7 +6,8 @@ public enum ExceptionMessage {
     EMPTY_HAND("Invalid Operation: Empty Hand"),
     INVALID_CARDS_COUNT("Invalid Operation: Invalid Card Count"),
     CARD_NOT_FOUND("Invalid Operation: Card Not Found"),
-    NO_PLAYER("Invalid Operation: No Player")
+    NO_PLAYER("Invalid Operation: No Player"),
+    HAND_RANK_NOT_FOUND("Invalid Operation: HandRank Not Found")
     ;
 
     private final String message;
