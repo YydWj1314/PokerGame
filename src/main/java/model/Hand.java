@@ -34,6 +34,7 @@ public abstract class Hand implements Comparable<Hand> {
 
     public abstract List<Card> getMainCards();
 
+    // simple comparison in
     @Override
     public int compareTo(Hand other) {
         return Integer.compare(this.getHandValue(), other.getHandValue());

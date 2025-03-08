@@ -14,8 +14,9 @@ import java.util.Scanner;
 public class Player {
     private String uid;
     private List<Card> hand;
-    private Integer sore;
     private Hand handRank;
+    private Integer score;
+
 
     /**
      * Constructor with user id
@@ -25,8 +26,8 @@ public class Player {
     public Player(String uid) {
         this.uid = uid;
         this.hand = new ArrayList<>();
-        this.sore = 0;
         this.handRank = null;
+        this.score = 0;
     }
 
     public String getUid() {

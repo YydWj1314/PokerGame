@@ -11,7 +11,11 @@ import java.util.Collections;
 import java.util.List;
 
 public class Deck {
-    private List<Card> cards = new ArrayList<Card>();
+    private List<Card> cards;
+
+    public Deck() {
+        this.cards = new ArrayList<>();
+    }
 
     /**
      * Initialization: adding cards into the deck
@@ -40,7 +44,7 @@ public class Deck {
      *
      * @return card on the top of the deck
      */
-    public Card showTop() {
+    public Card getTop() {
         return cards.get(0);
     }
 
@@ -68,6 +72,7 @@ public class Deck {
         cards.subList(0, n).clear();  // remove the dealt cards
         return dealCards;
     }
+
 
     @Override
     public String toString() {
