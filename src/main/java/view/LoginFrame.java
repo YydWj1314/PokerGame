@@ -1,5 +1,9 @@
 package view;
 
+import Server.GameServer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -9,6 +13,7 @@ import java.net.Socket;
 
 public class LoginFrame extends JFrame {
 
+    private static final Logger log = LoggerFactory.getLogger(LoginFrame.class);
     private JLabel unameJLabel;
     private JTextField unameJTextField;
     private JButton jButton;
@@ -52,8 +57,9 @@ public class LoginFrame extends JFrame {
 
             // 2. Creat socket connecting server
             try {
-                Socket socket = new Socket("127.0.0.1", 8888);
-
+                Socket socket = new Socket(GameServer.getServerIp(), GameServer.getServerPort());
+                log.info("Try to connect server: IP: {}, Port: {}",
+                        GameServer.getServerIp(), GameServer.getServerPort());
                 // 3. Jump to main frame
                 new MainFrame(uname, socket);
 

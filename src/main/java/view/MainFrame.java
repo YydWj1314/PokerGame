@@ -1,5 +1,7 @@
 package view;
 
+import threads.SendThread;
+
 import javax.swing.*;
 import java.net.Socket;
 
@@ -8,6 +10,7 @@ public class MainFrame extends JFrame {
     public MyPanel myPanel;
     public String uname;
     public Socket socket;
+    private SendThread sendThread;
 
     public MainFrame(String uname, Socket socket){
         this.uname = uname;
@@ -23,6 +26,8 @@ public class MainFrame extends JFrame {
         myPanel.setBounds(0, 0, 1200, 700);
         this.add(myPanel);
 
-        //
+        // start message sending thread
+        sendThread = new SendThread(this.socket, uname);
+        sendThread.start();
     }
 }

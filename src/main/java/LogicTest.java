@@ -2,13 +2,10 @@ import controller.GameController;
 import model.Card;
 import model.Deck;
 import model.Player;
-import model.enumuration.CardRank;
-import model.enumuration.CardSuit;
-import utils.HandEvaluator;
 
 import java.util.*;
 
-public class PokerGame {
+public class LogicTest {
     public static void main(String[] args) {
         /*
         * 尝试执行：
