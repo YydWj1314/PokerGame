@@ -69,9 +69,10 @@ class PlayerTest {
     @Test
     void getCardsFromDeckTop() {
         List<Card> expected = new ArrayList<>(List.of(
+                new Card(CardSuit.SPADES, CardRank.TWO),
                 new Card(CardSuit.SPADES, CardRank.THREE),
-                new Card(CardSuit.SPADES, CardRank.FOUR),
-                new Card(CardSuit.SPADES, CardRank.FIVE)
+                new Card(CardSuit.SPADES, CardRank.FOUR)
+
         ));
 
         player2.getCardsFromDeckTop(deck, 3);
