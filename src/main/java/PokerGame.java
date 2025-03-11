@@ -63,6 +63,7 @@ public class PokerGame {
 
 
         // 5. Evaluating and sorting player by hand rank
+        // hashMap -> linkedHashMap
         LinkedHashMap<Player, List<Card>> playerRankMap = gameController
                 .evaluatePlayedCards(cardsMap);
         System.out.println("After ranking played cards:");

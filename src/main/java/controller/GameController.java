@@ -106,17 +106,21 @@ public class GameController {
         LinkedHashMap<Player, List<Card>> playerRankMap = palyedCardsMap.entrySet()
                 .stream()
                 .sorted((e1, e2) -> new RankComparator().compare(e1.getValue(), e2.getValue()))  // reserved order
+                .peek(entry -> entry.getKey().setHandRank(HandEvaluator.getResult(entry.getValue())))  // see for loop under
                 .collect(Collectors.toMap(
                         Map.Entry::getKey,
                         Map.Entry::getValue,
-                        (oldValue, newValue) -> oldValue,
+                        (oldValue, newValue) -> oldValue,  // base case
                         LinkedHashMap::new
                 ));
-        return playerRankMap;
-    }
 
-    private void determinePlayersRank(List<Player> players) {
-        // TODO
+//        for(Map.Entry<Player, List<Card>> entry : playerRankMap.entrySet()){
+//            Player player = entry.getKey();
+//            List<Card> cards = entry.getValue();
+//            player.setHandRank(HandEvaluator.getResult(cards));
+//        }
+
+        return playerRankMap;
     }
 
 

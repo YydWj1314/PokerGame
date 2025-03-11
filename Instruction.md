@@ -7,7 +7,7 @@
 - OOD Basic 面向对象基础
 - Collections 集合 & Map映射 API
   - Map: HashMap, LinkedHashMap
-  - Set: HashSet
+    - Set: HashSet
   - List: ArrayList
 - Stream  API 流的使用
   - 获取流: .stream()
@@ -20,7 +20,7 @@
 
 - java GUI：Swing 
 
-### JavaWeb 
+### JavaWeb
 
 - Client - Server 的基本架构
 - 网络通信基本原理：TCP / UDP / IP
@@ -246,6 +246,34 @@ public abstract class T implements Comparator<T> {
 ![image-20250303095520161](/Users/yueyangdong/Library/Application Support/typora-user-images/image-20250303095520161.png)
 
 ![image-20250303100300736](/Users/yueyangdong/Library/Application Support/typora-user-images/image-20250303100300736.png)
+
+
+
+## Appendence: Important APIs
+
+### Collections -- List 
+
+```java
+// 1. List.of() -- 直接初始化一个不可变的列表
+List<Card> expected = new ArrayList<>(List.of(
+        new Card(CardSuit.SPADES, CardRank.THREE),
+        new Card(CardSuit.SPADES, CardRank.FOUR),
+        new Card(CardSuit.SPADES, CardRank.FIVE)
+));
+
+// 2. map() -- 映射，常用于直接将元素转换
+// 方法签名：
+<R> List<R> map(Function<T,R> converter);
+/* 解释：
+* 	<R>声明: 声明为泛型方法，R 作为方法级泛型参数。
+*   返回值 List<R>: 返回值为一个元素为 泛型<R> 的 List
+	参数 Function<T,R> converter: 
+        converter的函数接口，定义 T -> R 的转换规则，可以用 lamada/reference 简化
+*/	
+
+
+
+```
 
 
 
