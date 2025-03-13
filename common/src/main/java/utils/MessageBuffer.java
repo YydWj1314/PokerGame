@@ -20,7 +20,7 @@ public class MessageBuffer {
             log.info("MessageBuffer Add Message: [{} from {}]", message, socket);
         } catch (InterruptedException e) {
             log.error("MessageBuffer Put Error, Thread Interrupted ", e);
-            Thread.currentThread().interrupt(); // ✅ 重新设置中断标志
+            Thread.currentThread().interrupt(); // setting interruption
         }
     }
 
