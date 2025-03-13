@@ -2,25 +2,33 @@ package controller;
 
 import model.Card;
 import model.Deck;
-import model.Hand;
 import model.Player;
+import model.enumuration.CommandType;
 import model.enumuration.ExceptionMessage;
-import model.enumuration.HandRank;
 import model.exception.EmptyDeckException;
 import model.exception.InvalidCardsCountException;
-import model.exception.NoPlayerException;
-import utils.HandEvaluator;
-import utils.RankComparator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import utils.*;
 
+import java.net.Socket;
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class GameController {
+    private static final Logger log = LoggerFactory.getLogger(ServerCmdHandler.class);
+
     private Deck deck;
 
-    private final List<Player> players;
+    private List<Player> players;
 
     private boolean isGameActive;
+
+
+    public GameController() {
+        this.deck = new Deck();
+        this.players = new ArrayList<>();
+    }
 
     /**
      * Constructor of game controller
@@ -43,6 +51,19 @@ public class GameController {
         evaluatePlayedCards(playedCardsMap);
 //        determinePlayersRank(players);
 //        settleScores();
+    }
+
+    public void addPlayer(Socket socket, String uname){
+        Player player = new Player(uname, socket);
+        this.players.add(player);
+        log.info("Player add in the list: {}", players);
+
+        SocketHandler socketHandler = new SocketHandler(socket);
+
+        // NOTIFY_CLIENT Welcome to the game~
+        String message = CmdBuilder.buildCmd(CommandType.NOTIFY_CLIENT,
+                "Welcome to the game~");
+        socketHandler.sendMessage(message);
     }
 
 
@@ -70,7 +91,7 @@ public class GameController {
 
         // Each Player plays cards
         for (Player player : this.players) {
-            System.out.println(player.getUid() + " Input 3 indices, split by space:");
+            System.out.println(player.getUname() + " Input 3 indices, split by space:");
             List<Card> selectedCards = player.selectCards(3, scanner);
             if (selectedCards == null || selectedCards.isEmpty()) {
                 throw new InvalidCardsCountException(ExceptionMessage.INVALID_CARDS_COUNT.getMessage());
@@ -130,6 +151,10 @@ public class GameController {
 
     public void setDeck(Deck deck) {
         this.deck = deck;
+    }
+
+    public List<Player> getPlayers() {
+        return players;
     }
 
     @Override

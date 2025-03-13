@@ -1,9 +1,10 @@
 package Server;
 
+import controller.GameController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import threads.ReceiveThread;
-import threads.SendThread;
+import threads.ServerReceiveThread;
+import utils.ServerCmdHandler;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -23,6 +24,7 @@ public class GameServer {
 
     private static final int SERVER_PORT = 10086;
 
+
     public static String getServerIp() {
         return SEVER_IP;
     }
@@ -31,27 +33,32 @@ public class GameServer {
         return SERVER_PORT;
     }
 
-    public static void main(String[] args) throws IOException {
-        log.info("Server starts running, waiting for connections...");
+    public static void main(String[] args) {
+        GameController gameController = new GameController();
+
+        ServerCmdHandler serverCmdHandler = new ServerCmdHandler(gameController);
+
+        ServerSocket serverSocket = null;
+        try {
+            serverSocket = new ServerSocket(SERVER_PORT);
+            log.info("Server starts running, waiting for connections...");
+        } catch (IOException e) {
+            log.error("Server Socket Error", e);
+        }
 
         try {
-            // 1. Creating server Socket
-            ServerSocket serverSocket = new ServerSocket(SERVER_PORT);
-
+            // 1. accept connection and creating receiving thread
             while(true){
+                Socket socket = serverSocket.accept();
+                log.info("Client connected: {}", socket.getInetAddress());
 
-                // 2. Accept connection
-                Socket clientSocket = serverSocket.accept();
-                System.out.println("123123");
-                log.info("Client connected: {}", clientSocket.getInetAddress());
+                // Creating thread receiving message
+                ServerReceiveThread serverReceiveThread = new ServerReceiveThread(socket, serverCmdHandler);
+                serverReceiveThread.start();
 
-                // 3. Creating and start thread for each client
-                ReceiveThread receiveThread = new ReceiveThread(clientSocket);
-                receiveThread.start();
             }
         } catch (IOException e) {
             log.error("Server Error", e);
         }
-
     }
 }

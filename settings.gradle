@@ -1,2 +1,9 @@
 rootProject.name = 'CS5004_PokerGame'
+include 'GameServer'
+include 'GameClient'
+include 'untitled'
+include 'Common'
+include 'client'
+include 'server'
+include 'common'
 
