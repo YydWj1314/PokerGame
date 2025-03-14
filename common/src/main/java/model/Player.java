@@ -3,6 +3,7 @@ package model;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import utils.SocketHandler;
 
 import java.net.Socket;
 import java.util.ArrayList;
@@ -14,12 +15,18 @@ import java.util.Scanner;
  */
 public class Player {
     private static final Logger log = LoggerFactory.getLogger(Player.class);
-    private int id;
+
+    private static int ID_COUNTER = 1;
     private static int idCounter = 0;
+
+    private int id;
     private String name;
     private List<Card> hand;
     private Integer score;
     private Socket socket;
+    private SocketHandler socketHandler;
+
+    public Player() {}
 
     /**
      * Constructor with name and given socket
@@ -28,15 +35,18 @@ public class Player {
      * @param socket socket with server ip and port
      */
     public Player(String name, Socket socket) {
-        this.id = generateId();;
+        this.id = ID_COUNTER++;
         this.name = name;
         this.hand = new ArrayList<>();
         this.score = 0;
         this.socket = socket;
+        this.socketHandler = new SocketHandler(socket);
     }
 
-    private static synchronized int generateId() {
-        return idCounter++;
+    public Player(int id, String name, List<Card> hand) {
+        this.id = id;
+        this.name = name;
+        this.hand = hand;
     }
 
     public int getId() {
@@ -130,6 +140,16 @@ public class Player {
         }
         this.hand.removeAll(cards);
         return cards;
+    }
+
+    public void sendMessage(String message) {
+        socketHandler.sendMessage(message);
+    }
+
+    public void setAll(Player other) {
+        this.id = other.id;
+        this.name = other.name;
+        this.hand = new ArrayList<>(other.hand);
     }
 
     @Override

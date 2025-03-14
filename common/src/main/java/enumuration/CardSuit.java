@@ -6,16 +6,16 @@ public enum CardSuit {
     DIAMONDS("diamonds","♦"),
     CLUBS("clubs", "♣");
 
-    private String alias;
+    private String name;
     private final String symbol;
 
-    CardSuit(String alias,String symbol) {
-        this.alias = alias;
+    CardSuit(String name,String symbol) {
+        this.name = name;
         this.symbol = symbol;
     }
 
-    public String getAlias() {
-        return alias;
+    public String getName() {
+        return name;
     }
 
     public String getSymbol() {

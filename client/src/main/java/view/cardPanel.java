@@ -3,11 +3,13 @@ package view;
 import javax.swing.*;
 import java.awt.*;
 
-public class MyPanel extends JPanel {
+public class cardPanel extends JPanel {
     private Image backgroundImage;
 
-    public MyPanel() {
+    public cardPanel() {
         backgroundImage = new ImageIcon(getClass().getResource("/bg1.jpg")).getImage();
+        // Absolute position: setLocation/ setBounds
+        this.setLayout(null);
     }
 
     @Override
