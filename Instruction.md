@@ -156,7 +156,7 @@
   - HandEvaluator 工具类 
   - RankComparator 工具类 
 
-##### 实现牌型对象：基类 Hand + 各个牌型的子类
+#### 实现牌型对象：基类 Hand + 各个牌型的子类
 
 - **基类Hand提供的方法，子类override：**
   1. 实现 compareble 接口，让牌型可以根据 Rate的value 比较（这里只能比较简单顺序，复杂的比较逻辑要重新定义comparator 类）
@@ -231,9 +231,16 @@ public abstract class T implements Comparator<T> {
   * 确定牌型
   ```
 
-  
 
-  
+### Stage2: Implementing C/S and Multi-thread
+
+#### 多线程的启动
+
+#### C/S 架构的实现
+
+#### Client 手牌的排序显示
+
+- 
 
 
 
@@ -243,7 +250,9 @@ public abstract class T implements Comparator<T> {
 
 
 
-![image-20250303095520161](/Users/yueyangdong/Library/Application Support/typora-user-images/image-20250303095520161.png)
+
+
+![image-20250303095520161](/Users/yueyangdong/Library/Application Support/typora-user-images/image-20250303095520161.png
 
 ![image-20250303100300736](/Users/yueyangdong/Library/Application Support/typora-user-images/image-20250303100300736.png)
 

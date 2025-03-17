@@ -91,14 +91,14 @@ public class ClientController {
         List<CardVO> cardVOList = new ArrayList<>();
         for (Player player : playerList) {
             if(this.currentPlayer.getName().equals(player.getName())){
+                // Encapsulating Player object
                 this.currentPlayer.setAll(player);
-                log.info("Current Player Hand: {}", currentPlayer.getHand());
-                // Encapsulating VO
                 List<Card> currentPlayerHand = currentPlayer.getHand();
+                log.info("Current Player Hand: {}", currentPlayerHand );
                 cardVOList = currentPlayerHand.stream()
                         .map(card -> new CardVO(card.getSuit(), card.getRank(), true))
                         .collect(Collectors.toList());
-                log.info("Map to CardVOList: {}", cardVOList);
+                log.info("Mapped to CardVO: {}", cardVOList);
                 break;
             }
         }

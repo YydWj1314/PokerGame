@@ -85,22 +85,31 @@ public class MainFrame extends JFrame implements ClientControllerListener {
         log.info("Updating UI...");
         SwingUtilities.invokeLater(() -> {
             this.cardPanel.removeAll();
-            int i = 0;
-            for (CardVO cardVO : cardVOList) {
-                cardVO.setUp(true);
-                this.cardVOList.add(cardVO);
+            this.cardPanel.revalidate();
+            this.cardPanel.repaint();
 
-                cardVO.setBounds(300 + 30 * i, 450, 150, 200);
-                // Adding to panel
-                this.cardPanel.add(cardVO);
-                // Setting z order
-                this.cardPanel.setComponentZOrder(cardVO, 0);
-                // Setting position on panel
-                ViewUtil.move(cardVO, 300 + 30 * i++, 450);
-            }
-            this.cardPanel.revalidate();  // ✅ 重新布局
-            this.cardPanel.repaint();     // ✅ 重新绘制
+            // Creating Timer，interval 300ms
+            Timer timer = new Timer(100, null);
+            final int[] i = {0};             // counter
+            timer.addActionListener(e -> {
+                if (i[0] < cardVOList.size()) {
+                    CardVO cardVO = cardVOList.get(i[0]);
+                    cardVO.setUp(true);
+                    this.cardVOList.add(cardVO);
 
+                    cardVO.setBounds(300 + 30 * i[0], 450, 150, 200);
+                    this.cardPanel.add(cardVO);
+                    this.cardPanel.setComponentZOrder(cardVO, 0);
+                    ViewUtil.move(cardVO, 300 + 30 * i[0]++, 450);
+
+                    this.cardPanel.revalidate();
+                    this.cardPanel.repaint();
+                } else {
+                    ((Timer) e.getSource()).stop(); // stop Timer
+                }
+            });
+
+            timer.start();
         });
     }
 }
