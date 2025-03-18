@@ -10,8 +10,8 @@ import model.CardVO;
 import model.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.ClientMessageBuffer;
 import utils.JsonUtil;
-import utils.MessageBuffer;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,12 +39,14 @@ public class ClientController {
     }
 
     private void startMessageListener() {
+        // Starting Message thread and taking messages
         new Thread(() -> {
             log.info("ClientController Listening for Messages...");
             while (true) {
-                MessageBuffer.MessageEntry entry = MessageBuffer.takeMessage();
+                ClientMessageBuffer.MessageEntry entry = ClientMessageBuffer.takeMessage();
                 if (entry != null) {
                     log.info("CC has taken message: {}", entry.message);
+                    // Handling messages
                     handleMessage(entry.message);
                 }
             }
@@ -52,7 +54,7 @@ public class ClientController {
     }
 
     private void handleMessage(String message){
-        log.info("CC handling message: {}", message);
+        log.info("CC starts processing message: {}", message);
 
         //TODO: After taking msg, handling by cases
 
@@ -102,7 +104,6 @@ public class ClientController {
                 break;
             }
         }
-
 
         // Notifying listener
         if(listener != null){

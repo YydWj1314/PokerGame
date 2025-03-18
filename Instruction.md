@@ -234,9 +234,22 @@ public abstract class T implements Comparator<T> {
 
 ### Stage2: Implementing C/S and Multi-thread
 
-#### 多线程的启动
+#### 多线程的实现
 
 #### C/S 架构的实现
+
+- Client 发送 message
+  - 根据操作，将 message 封装为标准 Command {Type + params }
+
+- Sevcie 处理 message
+  - Gamecontroller 开启线程接受前端的 message
+  - 前端在发送信息时，会封装为基本指令，指令格式：Type + params
+  - 根据
+
+- playerDTO
+- CardVO
+
+
 
 #### Client 手牌的排序显示
 
@@ -258,35 +271,39 @@ public abstract class T implements Comparator<T> {
 
 
 
-## Appendence: Important APIs
+## Appendence: 重要 APIs
 
-### Collections -- List 
+### List 的创建
+
+- 由List.of 创建的是不可变的集合，集合的元素不能被增删改
+- 由new 关键字创建的集合是可变集合，元素可以被修改
 
 ```java
-// 1. List.of() -- 直接初始化一个不可变的列表
+// 1.List.of 创建不可变列表
+List<Card> cards2 = List.of(new Card(CardSuit.SPADES, CardRank.THREE),
+        new Card(CardSuit.SPADES, CardRank.FOUR),
+        new Card(CardSuit.SPADES, CardRank.FIVE))
+
+// 2. 创建可变列表 
 List<Card> expected = new ArrayList<>(List.of(
         new Card(CardSuit.SPADES, CardRank.THREE),
         new Card(CardSuit.SPADES, CardRank.FOUR),
         new Card(CardSuit.SPADES, CardRank.FIVE)
 ));
 
-// 2. map() -- 映射，常用于直接将元素转换
-// 方法签名：
-<R> List<R> map(Function<T,R> converter);
-/* 解释：
-* 	<R>声明: 声明为泛型方法，R 作为方法级泛型参数。
-*   返回值 List<R>: 返回值为一个元素为 泛型<R> 的 List
-	参数 Function<T,R> converter: 
-        converter的函数接口，定义 T -> R 的转换规则，可以用 lamada/reference 简化
-*/	
-
+// 3.asList 创建
+List<Card> cards3 = Arrays.asList(new Card(CardRank.THREE), new Card(CardRank.ACE), new Card(CardRank.KING));
 
 
 ```
 
+### List\<T> 对象排序：Collections.sort()
 
+- 默认排序：集合中的对象实现 Comparable 接口	
 
+- 自定义排序：自定义 Comparator 比较器
 
+  
 
 
 

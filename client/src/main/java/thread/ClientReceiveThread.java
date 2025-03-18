@@ -2,7 +2,7 @@ package thread;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import utils.MessageBuffer;
+import util.ClientMessageBuffer;
 import utils.SocketHandler;
 
 import java.net.Socket;
@@ -52,8 +52,8 @@ public class ClientReceiveThread extends Thread {
         while (true) {
             String message = socketHandler.receiveMessage();
             log.info("Message received successfully: {}", message);
-            MessageBuffer.addMessage(this.socket, message);
-            log.info("Message added to MessageBuffer: {}", message);
+            ClientMessageBuffer.addMessage(this.socket, message);
+            log.info("Message added to ClientMessageBuffer: {}", message);
 
         }
 

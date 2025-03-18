@@ -1,6 +1,7 @@
 package Controller;
 
 import enumuration.CommandType;
+import model.Card;
 import model.Deck;
 import model.Player;
 import model.PlayerDTO;
@@ -13,6 +14,7 @@ import utils.SocketHandler;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -30,6 +32,7 @@ public class GameController {
     }
 
     private void startMessageListener(){
+        //Starting Message thread
         new Thread(() -> {
             log.info("GameController Listening for Messages...");
             while(true){
@@ -46,6 +49,8 @@ public class GameController {
     private void handleMessage(Socket socket, String message) {
         String[] parts = message.split(" ");
         String commandType =  parts[0];
+
+        // Dealing commands
         switch (commandType){
             case "JOIN" ->{
                 Player newPlayer = new Player(parts[1], socket);
@@ -53,15 +58,22 @@ public class GameController {
                 log.info("Added a new player [id:{}, name:{}, socket:{}]",
                         newPlayer.getId(), newPlayer.getName(), newPlayer.getSocket());
 
-                // Game starts when 3 players
+                // Game starts when players are ready
                 if(playerList.size() >= MAX_PLAYER_NUMBER) {
                     deck.shuffle();
                     log.info("Initialized deck and shuffled");
                     for (Player player : playerList) {
+                        // Dealing cards
                         player.getCardsFromDeck(deck, 5);
+
+                        // Sorting cards in descending order according to card rank
+                        List<Card> hand = player.getHand();
+                        Collections.sort(hand, Comparator
+                                .comparingInt((Card c) -> c.getRank().getValue())
+                                .reversed()
+                        );
                     }
-                    log.info("Finished dealing cards to all players");
-                    System.out.println(playerList);
+                    log.info("Finished dealing cards to all players: {}", playerList);
 
 
                     // Encapsulate DTO and  Sending DTO to frontend
