@@ -3,10 +3,10 @@ package view;
 import javax.swing.*;
 import java.awt.*;
 
-public class cardPanel extends JPanel {
+public class CardPanel extends JPanel {
     private Image backgroundImage;
 
-    public cardPanel() {
+    public CardPanel() {
         backgroundImage = new ImageIcon(getClass().getResource("/bg1.jpg")).getImage();
         // Absolute position: setLocation/ setBounds
         this.setLayout(null);

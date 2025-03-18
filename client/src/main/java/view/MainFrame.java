@@ -1,6 +1,5 @@
 package view;
 
-
 import controller.ClientController;
 import controller.ClientControllerListener;
 import model.CardVO;
@@ -9,56 +8,72 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thread.ClientReceiveThread;
 import thread.ClientSendThread;
-import util.ViewUtil;
-
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ *
+ */
 public class MainFrame extends JFrame implements ClientControllerListener {
     private static final Logger log = LoggerFactory.getLogger(MainFrame.class);
 
-    private cardPanel cardPanel;
+    private CardPanel cardPanel;
+    private JTextArea systemMessageArea;
+    private JButton playButton;
+
+
     private String message;
     private Socket socket;
     private ClientSendThread clientSendThread;
     private ClientReceiveThread clientReceiveThread;
     private Player currentPlayer = new Player();
     private List<CardVO> cardVOList = new ArrayList<>();
+    private List<CardVO> selectedCardVOList = new ArrayList<>();
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public Socket getSocket() {
-        return socket;
-    }
-
-    public void setSocket(Socket socket) {
-        this.socket = socket;
-    }
-
+    /**
+     * @param socket
+     * @param message
+     */
     public MainFrame(Socket socket, String message){
         this.socket = socket;
         this.message = message;
 
-
-        // Setting Attributes
+        // 设置窗口属性
         this.setSize(1200, 700);
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setLayout(null);
         this.setVisible(true);
 
-        // Adding Panel
-        cardPanel = new cardPanel();
+        // add CardPanel
+        cardPanel = new CardPanel();
         cardPanel.setBounds(0, 0, 1200, 700);
+        cardPanel.setLayout(null);
         this.add(cardPanel);
+
+        // Adding System message area
+        systemMessageArea = new JTextArea();
+        systemMessageArea.setEditable(false); // read only
+        systemMessageArea.setLineWrap(true);  //wrap text
+//        systemMessageArea.setFont(new Font("Arial", Font.PLAIN, 14))
+        JScrollPane scrollPane = new JScrollPane(systemMessageArea);
+        scrollPane.setBounds(600, 475, 500, 150);
+        scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+        cardPanel.add(scrollPane);
+
+
+        // initialize `playButton`
+        playButton = new JButton("Play");
+        playButton.setBounds(200, 400, 100, 50);
+//        playButton.addActionListener(e -> JOptionPane.showMessageDialog(this, "Play Button Clicked!"));
+        cardPanel.add(playButton);
+
 
         // Opening ClientSendThread to send messages
         clientSendThread = new ClientSendThread(socket, message);
@@ -74,17 +89,10 @@ public class MainFrame extends JFrame implements ClientControllerListener {
 
     }
 
-
-    @Override
-    public void onPlayerListUpdated(List<Player> playerList) {
-
-    }
-
     @Override
     public void onCardVOUpdated(List<CardVO> cardVOList) {
         log.info("Updating UI...");
         SwingUtilities.invokeLater(() -> {
-            this.cardPanel.removeAll();
             this.cardPanel.revalidate();
             this.cardPanel.repaint();
 
@@ -97,10 +105,16 @@ public class MainFrame extends JFrame implements ClientControllerListener {
                     cardVO.setUp(true);
                     this.cardVOList.add(cardVO);
 
-                    cardVO.setBounds(300 + 30 * i[0], 450, 150, 200);
+                    int xPos = 300 + 30 * i[0]++;
+                    int yPos = 450;
+                    cardVO.setBounds(xPos, yPos, 150, 200);
+
+                    // add mouse press event
+                    cardVO.addMouseListener(new CardClickListener(cardVO, xPos, yPos));
+
                     this.cardPanel.add(cardVO);
+
                     this.cardPanel.setComponentZOrder(cardVO, 0);
-                    ViewUtil.move(cardVO, 300 + 30 * i[0]++, 450);
 
                     this.cardPanel.revalidate();
                     this.cardPanel.repaint();
@@ -111,5 +125,49 @@ public class MainFrame extends JFrame implements ClientControllerListener {
 
             timer.start();
         });
+    }
+
+    @Override
+    public void onTextAreaUpdated(String message, Object... args) {
+        systemMessageArea.append(message + "\n");
+    }
+
+
+    /**
+     * Inner class of mouse click listener
+     */
+    private class CardClickListener extends MouseAdapter {
+        private final CardVO cardVO;
+        private final int xPos, yPos;
+        private boolean isSelected = false;
+
+        public CardClickListener(CardVO cardVO, int xPos, int yPos) {
+            this.cardVO = cardVO;
+            this.xPos = xPos;
+            this.yPos = yPos;
+        }
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            if (isSelected) {
+                if (selectedCardVOList.size() < 3) {
+                    cardVO.setBounds(xPos, yPos - 20, 150, 200);
+                    selectedCardVOList.add(cardVO);
+                    log.info("Selected Card: {}", cardVO);
+                }
+                else return;
+
+            } else {
+                cardVO.setBounds(xPos, yPos, 150, 200);
+                selectedCardVOList.remove(cardVO);
+                log.info("Removed Card: {}", cardVO);
+
+            }
+            log.info("Selected CardList: {}", selectedCardVOList);
+            isSelected = !isSelected;
+
+            cardPanel.revalidate();
+            cardPanel.repaint();
+        }
     }
 }

@@ -2,9 +2,10 @@ package enumuration;
 
 public enum CommandType {
     JOIN("JOIN"),
-    DEAL("DEAL"),
-    NOTIFY_SERVER("NOTIFY_SERVER"),
-    NOTIFY_CLIENT("NOTIFY_CLIENT");
+    JSON("JSON"),
+
+    WELCOME("WELCOME"),
+    BROADCAST("BROADCAST");
 
     private final String type;
 

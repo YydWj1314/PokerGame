@@ -13,13 +13,15 @@ import org.slf4j.LoggerFactory;
 import util.ClientMessageBuffer;
 import utils.JsonUtil;
 
+import javax.swing.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class ClientController {
-
     private static final Logger log = LoggerFactory.getLogger(ClientController.class);
+    private JFrame mainFrame;
     private String message;
     private Player currentPlayer;
     private ClientControllerListener listener;
@@ -35,10 +37,10 @@ public class ClientController {
 
         this.listener = listener;
 
-        startMessageListener();
+        startMessageThread();
     }
 
-    private void startMessageListener() {
+    private void startMessageThread() {
         // Starting Message thread and taking messages
         new Thread(() -> {
             log.info("ClientController Listening for Messages...");
@@ -57,57 +59,83 @@ public class ClientController {
         log.info("CC starts processing message: {}", message);
 
         //TODO: After taking msg, handling by cases
+        String[] parts = message.split(" ");
+        String commandType =  parts[0];
+        String remainingMessage = message.substring(commandType.length()).trim();
+        System.out.println(remainingMessage);
 
-        // Parsing json strings to array
-        JSONArray playerJsonArray = JsonUtil.toArray(message);
+        switch (commandType){
 
-        // Generating CardVO object
-        List<Player> playerList = new ArrayList<>();
-        for (int i = 0; i < playerJsonArray.size(); i++) {
-            JSONObject playerJson = (JSONObject) playerJsonArray.get(i);
-
-            int playerId = playerJson.getInteger("id");
-
-            String playerName = playerJson.getString("name");
-
-            List<Card> playerHand = new ArrayList<>();
-
-            JSONArray handJsonArray = playerJson.getJSONArray("hand");
-
-            for (int j = 0; j < handJsonArray.size(); j++) {
-                JSONObject handCard = (JSONObject) handJsonArray.get(j);
-                String handCardRank = handCard.getString("rank");
-                String handCardSuit = handCard.getString("suit");
-                playerHand.add(
-                        new Card(CardSuit.valueOf(handCardSuit), CardRank.valueOf(handCardRank)));
+            case "WELCOME" -> {
+                // eg: WELCOME Daniel 1
+                if(listener != null){
+                    String welcomeString = String.format("%s Welcome! Online player number: %s",
+                            parts[1], parts[2]);
+                    listener.onTextAreaUpdated(welcomeString);
+                }
             }
 
-            playerList.add(
-                    new Player(playerId, playerName, playerHand));
+            case "BROADCAST" -> {
+                // eg: BROADCAST "Game Start"
+                if(listener != null){
+                    listener.onTextAreaUpdated(remainingMessage);
+                }
+            }
 
-        }
+            case "JSON" -> {
+                // Parsing json strings to array
+                JSONArray playerJsonArray = JsonUtil.toArray(remainingMessage);
 
-        System.out.println("Client PlayerList: " + playerList);
+                // Generating CardVO object
+                List<Player> playerList = new ArrayList<>();
+                for (int i = 0; i < playerJsonArray.size(); i++) {
+                    JSONObject playerJson = (JSONObject) playerJsonArray.get(i);
 
-        // Searching current player info and Encapsulating VO
-        List<CardVO> cardVOList = new ArrayList<>();
-        for (Player player : playerList) {
-            if(this.currentPlayer.getName().equals(player.getName())){
-                // Encapsulating Player object
-                this.currentPlayer.setAll(player);
-                List<Card> currentPlayerHand = currentPlayer.getHand();
-                log.info("Current Player Hand: {}", currentPlayerHand );
-                cardVOList = currentPlayerHand.stream()
-                        .map(card -> new CardVO(card.getSuit(), card.getRank(), true))
-                        .collect(Collectors.toList());
-                log.info("Mapped to CardVO: {}", cardVOList);
-                break;
+                    int playerId = playerJson.getInteger("id");
+                    String playerName = playerJson.getString("name");
+
+                    List<Card> playerHand = new ArrayList<>();
+
+                    JSONArray handJsonArray = playerJson.getJSONArray("hand");
+                    for (int j = 0; j < handJsonArray.size(); j++) {
+                        JSONObject handCard = (JSONObject) handJsonArray.get(j);
+                        String handCardRank = handCard.getString("rank");
+                        String handCardSuit = handCard.getString("suit");
+                        playerHand.add(
+                                new Card(CardSuit.valueOf(handCardSuit), CardRank.valueOf(handCardRank)));
+                    }
+
+                    playerList.add(
+                            new Player(playerId, playerName, playerHand));
+                }
+
+                System.out.println("Client PlayerList: " + playerList);
+
+                // Searching current player info and Encapsulating VO
+                List<CardVO> cardVOList = new ArrayList<>();
+                for (Player player : playerList) {
+                    if(this.currentPlayer.getName().equals(player.getName())){
+                        // Encapsulating Player object
+                        this.currentPlayer.setAll(player);
+
+                        List<Card> currentPlayerHand = currentPlayer.getHand();
+                        log.info("Current Player Hand: {}", currentPlayerHand );
+
+                        cardVOList = currentPlayerHand.stream()
+                                .map(card -> new CardVO(card.getSuit(), card.getRank(), true))
+                                .collect(Collectors.toList());
+                        log.info("Mapped to CardVO: {}", cardVOList);
+                        break;
+                    }
+                }
+
+                // Notifying listener
+                if(listener != null){
+                    listener.onCardVOUpdated(cardVOList);
+                }
             }
         }
 
-        // Notifying listener
-        if(listener != null){
-            listener.onCardVOUpdated(cardVOList);
-        }
     }
+
 }
