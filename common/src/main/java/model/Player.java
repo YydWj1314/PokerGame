@@ -17,7 +17,6 @@ public class Player {
     private static final Logger log = LoggerFactory.getLogger(Player.class);
 
     private static int ID_COUNTER = 1;
-    private static int idCounter = 0;
 
     private int id;
     private String name;
@@ -26,7 +25,9 @@ public class Player {
     private Socket socket;
     private SocketHandler socketHandler;
 
-    public Player() {}
+    public Player() {
+
+    }
 
     /**
      * Constructor with name and given socket
@@ -147,7 +148,6 @@ public class Player {
     }
 
     public void setAll(Player other) {
-        this.id = other.id;
         this.name = other.name;
         this.hand = new ArrayList<>(other.hand);
     }

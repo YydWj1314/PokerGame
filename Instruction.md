@@ -116,7 +116,7 @@
 #### 初始化套牌
 
 - 思考过程：
-  1. Deck 中的成语变量List\<Card> cards 表示了deck中的全部扑克，但实例化Deck 后里面并没有扑克，因此Deck 需要提供InitDeck() 方法，将cards集合装入52 个扑克对象
+  1. Deck 中的成员变量List\<Card> cards 表示了deck中的全部扑克，但实例化Deck 后里面并没有扑克，因此Deck 需要提供InitDeck() 方法，将cards集合装入52 个扑克对象
 - 需要完成的方法：deck.initDeck()
 
 #### 洗牌、发牌、收牌
@@ -231,21 +231,44 @@ public abstract class T implements Comparator<T> {
   * 确定牌型
   ```
 
-
 ### Stage2: Implementing C/S and Multi-thread
 
-#### 多线程的实现
+#### C/S 基本架构的实现
 
-#### C/S 架构的实现
+C/S 架构的基本思路：
+
+项目在这个 stage 会被划分为 2 个基本子 module：Server module + Client module，Server 和 Client 分别进行开发，同时联合调试
+
+##### 搭架子
+
+正式进入前后端的开发，先将项目的架子搭好
+
+- 分别在project 下新建 client module 和 service module
+- 利用 Socket API实现 前后端的基本通信
+  - 实现 TCP基本通信 (单对单) 
+    - client 发送消息（eg：前端向后端发送“Hello”），server 接收消息，再向client回应消息
+    - 后端监听 127.0.0.1, 自定义 port
+    - 前端访问 127.0.0.1, 对应 port
+  - 在单对单对基础上实现 单对多的通信（一个server 多个 client）
+    - ⚠️由于我们需要启动多个客户端，搜索并设置下下如何在idea中实现开启多个客户端窗口
+
+##### Client： LoginFrame & MainFrame
+
+基本通信功能实现后，进入前端（Client）开发，
+
+- 完成 LoginFrame（登陆界面）创建
+  - 用户输入用户名，点击登陆
+- 完成 MainFrame（游戏主界面） 创建
+- 
+
+
 
 - Client 发送 message
   - 根据操作，将 message 封装为标准 Command {Type + params }
-
 - Sevcie 处理 message
   - Gamecontroller 开启线程接受前端的 message
   - 前端在发送信息时，会封装为基本指令，指令格式：Type + params
   - 根据
-
 - playerDTO
 - CardVO
 
@@ -300,14 +323,52 @@ List<Card> cards3 = Arrays.asList(new Card(CardRank.THREE), new Card(CardRank.AC
 ### List\<T> 对象排序：Collections.sort()
 
 - 默认排序：集合中的对象实现 Comparable 接口	
-
 - 自定义排序：自定义 Comparator 比较器
+
+
+
+## yyd 开发日志
+
+**@2025/3/17**
+
+- 重新梳理了项目结构，完成了项目主要架构的示意图
+
+- 修复了一个结构上的问题：
+
+  - ❌ MessageBuffer 放在了common module 中，并被前后端共用
+  - 调整为：buffer 各自独立，前端重新定义ClientMessageBuffer
+
+- 完善了Client 结构：**Observer Pattern** + **Event-Driven**
+
+  - Server 发送消息后，ClientReceiving thread  接收并放入 ClientMessageBuffer 中
+
+  - ClientController开启thread， 基于阻塞（Blocking）对 ClientMessageBuffer 进行监听
+  -  ClientMessageBuffer 收到消息，controller 调用handleMessage 方法进行处理
+    - Message 基于 header + params 的结构，`<header> <param1> <param2> <param3> ...`
+    - controller 收到 message 后会根据 header 的command type 进入不同的处理分支
+  - Message 解析后，调用 listener.onXXXUpdated() 让 UI 响应
 
   
 
+**@2025/3/18**
+
+- 完成MainFrame 的 play Jbutton 显示
+- 完成了 CardVO 的事件绑定，实现点击突出，并将选择的 CardVO 加入selectedCardVOList
+  - 采用了inner class extend MouseAdapter，当单机事件触发，参数利用inner class constructor 传入
+- 完成了MainFrame的 JTextArea的显示
+- 实现登陆后向前端广播 Welcome Message，人数到齐后，TextArea 提示Game Start
+  - 前端玩家登陆后，后端发送封装的标准命令 WELCOME + name，player number 
+  - 人数到齐后，后端发送标准命令 BROADCAST + welcome string
+  - 前端的Receive Thread 接收封装的command message，存入ClientMessageBuffer 中，
+  - ClientController 获取message，根据 header 执行处理分支，通知 listener 更新UI
 
 
 
+**@2025/3/19**
+
+- Updated：ClientController 处理WELCOME 指令分支中，通过socket 作为唯一标识设置id；后续处理JSON过程中，可以根据id作为key进行查询
+- 创建PlayCardDTO class，用于客户端向服务器发送玩家出牌的 相关message
+- 实现 Play button 可以点击后发送 Json Command： CLIENT_PLAY + CardDTO list 
 
 
 

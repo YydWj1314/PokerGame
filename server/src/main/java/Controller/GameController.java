@@ -52,6 +52,7 @@ public class GameController {
         // Dealing commands
         switch (commandType){
             case "JOIN" ->{
+                log.info("===== SERVER: JOIN COMMAND =====");
                 // Creating new player and adding to the player list
                 Player newPlayer = new Player(parts[1], socket);
                 this.playerList.add(newPlayer);
@@ -59,11 +60,14 @@ public class GameController {
                         newPlayer.getId(), newPlayer.getName(), newPlayer.getSocket());
 
                 // Sending Login player info and welcome command to Frontend
-                // command eg: WELCOME daniel 1
-                String welcomeMessage = CommandBuilder.buildCommand(CommandType.WELCOME,
-                        newPlayer.getName(),
-                        Integer.toString(playerList.size()));
-                MessageBroadcaster.broadcastMessage(playerList, welcomeMessage);
+                // command eg: WELCOME (name)daniel (id)1 (socket)127.0.0.1 (player number)1
+                String welcomeCommand = CommandBuilder.buildCommand(CommandType.WELCOME,
+                        newPlayer.getName(),  // parts[1]
+                        Integer.toString(newPlayer.getId()),  // parts[2]
+                        Integer.toString(playerList.size()),  // parts[3]
+                        newPlayer.getSocket().getRemoteSocketAddress().toString()); //parts[4]
+
+                MessageBroadcaster.broadcastMessage(playerList, welcomeCommand);
 
                 // Game starts when players are ready
                 if(playerList.size() >= MAX_PLAYER_NUMBER) {
@@ -93,7 +97,7 @@ public class GameController {
                                     player.getHand(), player.getScore()))
                             .collect(Collectors.toList());
 
-                    // Changing PlayerDTO to json string
+                    // Converting PlayerDTO to json string
                     String jsonMessage = JsonUtil.toJson(playerDTOs);
                     log.info("JSON generated: {}", jsonMessage);
 
@@ -102,9 +106,12 @@ public class GameController {
                         String jsonCommand = CommandBuilder.buildCommand(CommandType.JSON, jsonMessage);
                         player.sendMessage(jsonCommand);
                     }
-                    log.info("Finished sending players' info to clients");
+                    log.info("Finished sending players' info to client");
                 }
-
+            }
+            case "CLIENT_PLAY" -> {
+                System.out.println("get");
+                log.info("===== CLIENT_PLAY =====");
             }
         }
 

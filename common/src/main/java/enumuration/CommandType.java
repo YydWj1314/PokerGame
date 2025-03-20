@@ -4,8 +4,12 @@ public enum CommandType {
     JOIN("JOIN"),
     JSON("JSON"),
 
+
+    // Client command
     WELCOME("WELCOME"),
-    BROADCAST("BROADCAST");
+    BROADCAST("BROADCAST"),
+    CLIENT_PLAY("CLIENT_PLAY");
+
 
     private final String type;
 

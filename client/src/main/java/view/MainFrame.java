@@ -2,15 +2,22 @@ package view;
 
 import controller.ClientController;
 import controller.ClientControllerListener;
+import enumuration.CommandType;
 import model.CardVO;
+import model.PlayCardDTO;
 import model.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import thread.ClientReceiveThread;
 import thread.ClientSendThread;
+import util.ClientJsonUtil;
+import util.ClientMessageBuffer;
+import utils.CommandBuilder;
+import utils.JsonUtil;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.net.Socket;
@@ -30,6 +37,7 @@ public class MainFrame extends JFrame implements ClientControllerListener {
 
     private String message;
     private Socket socket;
+    private ClientController clientController;
     private ClientSendThread clientSendThread;
     private ClientReceiveThread clientReceiveThread;
     private Player currentPlayer = new Player();
@@ -44,7 +52,7 @@ public class MainFrame extends JFrame implements ClientControllerListener {
         this.socket = socket;
         this.message = message;
 
-        // 设置窗口属性
+        // Setting window attributes
         this.setSize(1200, 700);
         this.setLocationRelativeTo(null);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -61,31 +69,54 @@ public class MainFrame extends JFrame implements ClientControllerListener {
         systemMessageArea = new JTextArea();
         systemMessageArea.setEditable(false); // read only
         systemMessageArea.setLineWrap(true);  //wrap text
-//        systemMessageArea.setFont(new Font("Arial", Font.PLAIN, 14))
         JScrollPane scrollPane = new JScrollPane(systemMessageArea);
         scrollPane.setBounds(600, 475, 500, 150);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
         cardPanel.add(scrollPane);
 
 
-        // initialize `playButton`
+        // Initializing `playButton`
         playButton = new JButton("Play");
         playButton.setBounds(200, 400, 100, 50);
-//        playButton.addActionListener(e -> JOptionPane.showMessageDialog(this, "Play Button Clicked!"));
         cardPanel.add(playButton);
 
 
-        // Opening ClientSendThread to send messages
+        // Add event to the button
+        playButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // click the button and play cards
+                if(selectedCardVOList.size() < 3){
+                    JOptionPane.showMessageDialog(
+                            MainFrame.this,
+                            "Please Select 3 Cards!",
+                            "Selection Error",
+                            JOptionPane.WARNING_MESSAGE
+                    );
+                    return;
+                }
+                if (selectedCardVOList == null ||selectedCardVOList .isEmpty()) {
+                    log.error("selectedCardVOList is empty, cannot send message.");
+                    return;
+                }
+                clientController.sendPlayCommand(selectedCardVOList);
+                log.info("Finished Sending Command to Backend");
+
+            }
+        });
+
+        // Starting ClientSendThread to send messages
         clientSendThread = new ClientSendThread(socket, message);
         clientSendThread.start();
         log.info("ClientSendThread Started Successfully");
 
-        // Opening ClientReceiveThread to receive messages
+        // Initializing client controller
+        clientController =  new ClientController(message, clientSendThread, this);
+
+        // Starting ClientReceiveThread to receive messages
         clientReceiveThread = new ClientReceiveThread(socket);
         clientReceiveThread.start();
         log.info("ClientReceiveThread Started Successfully");
-
-        new ClientController(message, this);
 
     }
 
@@ -109,7 +140,7 @@ public class MainFrame extends JFrame implements ClientControllerListener {
                     int yPos = 450;
                     cardVO.setBounds(xPos, yPos, 150, 200);
 
-                    // add mouse press event
+                    // Adding mouse press event
                     cardVO.addMouseListener(new CardClickListener(cardVO, xPos, yPos));
 
                     this.cardPanel.add(cardVO);

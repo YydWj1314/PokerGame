@@ -70,6 +70,7 @@ public class LoginFrame extends JFrame {
 
                 // 4. Jumping to main frame with command
                 new MainFrame(socket, joinMessage);
+                dispose();
 
 
             } catch (IOException ex) {

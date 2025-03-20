@@ -5,12 +5,16 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import enumuration.CardRank;
 import enumuration.CardSuit;
+import enumuration.CommandType;
 import model.Card;
 import model.CardVO;
+import model.PlayCardDTO;
 import model.Player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import thread.ClientSendThread;
 import util.ClientMessageBuffer;
+import utils.CommandBuilder;
 import utils.JsonUtil;
 
 import javax.swing.*;
@@ -21,25 +25,34 @@ import java.util.stream.Collectors;
 
 public class ClientController {
     private static final Logger log = LoggerFactory.getLogger(ClientController.class);
-    private JFrame mainFrame;
     private String message;
     private Player currentPlayer;
     private ClientControllerListener listener;
+    private ClientSendThread clientSendThread;
 
-    public ClientController(String message, ClientControllerListener listener) {
+    List<Player> playerList = new ArrayList<>();
+
+    public ClientController(String message, ClientSendThread clientSendThread, ClientControllerListener listener) {
         // get Join Cmd from frame containing name of current player
         // JOIN yyd
         this.currentPlayer = new Player();
+
         this.message = message;
         String[] parts = this.message.split(" ");
         String name = parts[1];
+
         this.currentPlayer.setName(name);
+
+        this.clientSendThread = clientSendThread;
 
         this.listener = listener;
 
         startMessageThread();
     }
 
+    /**
+     * Starting message thread and polling messages
+     */
     private void startMessageThread() {
         // Starting Message thread and taking messages
         new Thread(() -> {
@@ -56,6 +69,8 @@ public class ClientController {
     }
 
     private void handleMessage(String message){
+        System.out.println("======= handleMessage =======");
+
         log.info("CC starts processing message: {}", message);
 
         //TODO: After taking msg, handling by cases
@@ -67,15 +82,29 @@ public class ClientController {
         switch (commandType){
 
             case "WELCOME" -> {
-                // eg: WELCOME Daniel 1
+                // eg: WELCOME (name)daniel (id)1 (player number)1
+                log.info("===== WELCOME =====");
                 if(listener != null){
-                    String welcomeString = String.format("%s Welcome! Online player number: %s",
-                            parts[1], parts[2]);
+                    String welcomeString = String.format("%s Welcome! Online player number: %s." ,
+                            parts[1], parts[3]);
+
+                    // Getting socket send by server
+                    String receivedSocketAddress = parts[4];
+                    // Getting current client socket
+                    String localSocketAddress = clientSendThread.getSocket().getLocalSocketAddress().toString();
+
+                    // Setting id for player
+                    if (receivedSocketAddress.equals(localSocketAddress)) {
+                        this.currentPlayer.setId(Integer.parseInt(parts[2]));
+                        log.info("Set ID for current player: {}", this.currentPlayer.getId());
+                    }
+
                     listener.onTextAreaUpdated(welcomeString);
                 }
             }
 
             case "BROADCAST" -> {
+                log.info("===== BROADCAST =====");
                 // eg: BROADCAST "Game Start"
                 if(listener != null){
                     listener.onTextAreaUpdated(remainingMessage);
@@ -83,11 +112,11 @@ public class ClientController {
             }
 
             case "JSON" -> {
+                log.info("===== JSON =====");
                 // Parsing json strings to array
                 JSONArray playerJsonArray = JsonUtil.toArray(remainingMessage);
 
                 // Generating CardVO object
-                List<Player> playerList = new ArrayList<>();
                 for (int i = 0; i < playerJsonArray.size(); i++) {
                     JSONObject playerJson = (JSONObject) playerJsonArray.get(i);
 
@@ -114,7 +143,7 @@ public class ClientController {
                 // Searching current player info and Encapsulating VO
                 List<CardVO> cardVOList = new ArrayList<>();
                 for (Player player : playerList) {
-                    if(this.currentPlayer.getName().equals(player.getName())){
+                    if(this.currentPlayer.getId() == player.getId()){
                         // Encapsulating Player object
                         this.currentPlayer.setAll(player);
 
@@ -136,6 +165,35 @@ public class ClientController {
             }
         }
 
+    }
+
+
+    /**
+     * Sending card played info to backend
+     * @param selectedCardVOList
+     */
+    public void sendPlayCommand(List<CardVO> selectedCardVOList) {
+        System.out.println("======= sendPlayCommand =======");
+        if (selectedCardVOList == null || selectedCardVOList.isEmpty()) {
+            log.error("selectedCardVOList is empty, cannot send message.");
+        }
+        // Encapsulating CardVO to playCardDTO
+        List<PlayCardDTO> playCardDTOs = selectedCardVOList.stream()
+                .map(cardVO -> new PlayCardDTO(currentPlayer.getId(),cardVO.getSuit(),cardVO.getRank()))
+                .toList();
+
+        String jsonMessage = JsonUtil.toJson(playCardDTOs);
+        log.info("JSON generated: {}", jsonMessage);
+
+        String playCommand = CommandBuilder.buildCommand(CommandType.CLIENT_PLAY, jsonMessage);
+
+        if (clientSendThread == null) {
+            log.error("❌ clientSendThread is NULL, cannot send message!");
+            return;
+        }
+
+        clientSendThread.sendMessage(playCommand);
+        log.info("Send Command to server: {}", playCommand);
     }
 
 }
