@@ -372,6 +372,14 @@ List<Card> cards3 = Arrays.asList(new Card(CardRank.THREE), new Card(CardRank.AC
 
 
 
+**@2025/3/20**
+
+- CardSuit、CardRank 枚举类 添加根据name string 获取枚举类方法
+
+- 实现后端接收 CLIENT_PLAY + json string 命令
+- 实现GameController 解析 json string，封装对象
+- 实现 playedCardMap\<Player, List\<Card>> entry添加
+
 
 
 

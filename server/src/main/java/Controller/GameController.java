@@ -1,5 +1,9 @@
 package Controller;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import enumuration.CardRank;
+import enumuration.CardSuit;
 import enumuration.CommandType;
 import model.Card;
 import model.Deck;
@@ -10,17 +14,15 @@ import org.slf4j.LoggerFactory;
 import utils.*;
 
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class GameController {
-    private static final int MAX_PLAYER_NUMBER = 2;
+    private static final int MAX_PLAYER_NUMBER = 1;
     private static final Logger log = LoggerFactory.getLogger(GameController.class);
 
     private List<Player> playerList = Collections.synchronizedList(new ArrayList<>());
+    Map<Player, List<Card>> playedCardsMap = new HashMap<>();
     private Deck deck = new Deck();
 
 
@@ -48,6 +50,7 @@ public class GameController {
     private void handleMessage(Socket socket, String message) {
         String[] parts = message.split(" ");
         String commandType =  parts[0];
+        String remainingMessage = message.substring(commandType.length()).trim();
 
         // Dealing commands
         switch (commandType){
@@ -71,9 +74,11 @@ public class GameController {
 
                 // Game starts when players are ready
                 if(playerList.size() >= MAX_PLAYER_NUMBER) {
+                    // Broadcasting game start message
                     String startMessage = CommandBuilder.buildCommand(CommandType.BROADCAST, "Game Start!");
                     MessageBroadcaster.broadcastMessage(playerList,startMessage);
 
+                    // Shuffling and Dealing cards to players
                     deck.shuffle();
                     log.info("Initialized deck and shuffled");
                     for (Player player : playerList) {
@@ -110,8 +115,38 @@ public class GameController {
                 }
             }
             case "CLIENT_PLAY" -> {
-                System.out.println("get");
                 log.info("===== CLIENT_PLAY =====");
+                // CLIENT_PLAY [{"playerId":1,"rank":"JACK","suit":"HEARTS"},
+                //              {"playerId":1,"rank":"QUEEN","suit":"DIAMONDS"},
+                //              {"playerId":1,"rank":"TEN","suit":"DIAMONDS"}]
+                JSONArray playedCardsJsonArray = JsonUtil.toArray(remainingMessage);
+
+                List<Card> playedCards = new ArrayList<>();
+                int playerId = -1;
+
+                // Parsing Json String and encapsulating card object
+                // Adding played cards to playedCards list
+                for(int i = 0; i < playedCardsJsonArray.size(); i++){
+                    JSONObject playedCardJson = (JSONObject) playedCardsJsonArray.get(i);
+                    playerId = playedCardJson.getInteger("playerId");
+                    String playedCardRank = playedCardJson.getString("rank");
+                    String playedCardSuit = playedCardJson.getString("suit");
+
+                    Card playedCard  = new Card(CardSuit.fromName(playedCardSuit),
+                            CardRank.fromName(playedCardRank));
+
+                    playedCards.add(playedCard);
+                }
+
+                // Putting {player-playedCards} entry to the map
+                for (Player player : playerList) {
+                    if (player.getId() == playerId) {
+                        playedCardsMap.put(player, playedCards);
+                        break;
+                    }
+                }
+                System.out.println(playedCardsMap);
+                System.out.println(playedCardsMap.size());
             }
         }
 

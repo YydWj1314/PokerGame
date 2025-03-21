@@ -51,7 +51,7 @@ public class CardVO extends JLabel {
     }
 
     public void turnUp() {
-        String cardURL = "pokers/" + rank.getName() + "_of_" + suit.getName() + ".png";
+        String cardURL = "pokers/" + rank.getLabel() + "_of_" + suit.getName() + ".png";
         System.out.println("Loading image from: " + cardURL);
         ImageIcon icon = new ImageIcon(getClass().getClassLoader().getResource(cardURL));
         if (icon.getIconWidth() == -1) {

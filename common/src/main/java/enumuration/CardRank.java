@@ -1,19 +1,19 @@
 package enumuration;
 
 public enum CardRank {
-    TWO(2, "2", "2"),
-    THREE(3, "3","3" ),
-    FOUR(4, "4", "4"),
-    FIVE(5, "5", "5"),
-    SIX(6, "6", "6"),
-    SEVEN(7, "7", "7"),
-    EIGHT(8, "8", "8"),
-    NINE(9, "9", "9"),
-    TEN(10, "10", "10"),
-    JACK(11, "J", "jack"),
-    QUEEN(12, "Q", "queen"),
-    KING(13, "K", "king"),
-    ACE(14, "A", "ace");
+    TWO(2, "2", "TWO"),
+    THREE(3, "3","THREE" ),
+    FOUR(4, "4", "FOUR"),
+    FIVE(5, "5", "FIVE"),
+    SIX(6, "6", "SIX"),
+    SEVEN(7, "7", "SEVEN"),
+    EIGHT(8, "8", "EIGHT"),
+    NINE(9, "9", "NINE"),
+    TEN(10, "10", "TEN"),
+    JACK(11, "jack", "JACK"),
+    QUEEN(12, "queen", "QUEEN"),
+    KING(13, "king", "KING"),
+    ACE(14, "ace", "ACE");
 
 //    JOKER_BLACK("Joker-Black"),
 //    JOKER_RED("Joker-Red");
@@ -34,6 +34,22 @@ public enum CardRank {
 
     public String getName(){ return this.name; }
 
+    public String getLabel() {
+        return label;
+    }
+
+    /**
+     * @param name
+     * @return
+     */
+    public static CardRank fromName(String name){
+        for(CardRank rank: values()){
+            if(rank.getName().equals(name)){
+                return rank;
+            }
+        }
+        throw new IllegalArgumentException("No suit find with name:" + name);
+    }
 
     @Override
     public String toString() {
